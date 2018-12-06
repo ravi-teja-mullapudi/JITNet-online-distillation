@@ -16,7 +16,6 @@ from tensorflow.python.ops import control_flow_ops
 sys.path.append(os.path.realpath('./datasets'))
 
 import res_seg
-import res_seg_dual
 import coco_tfrecords as coco
 
 sys.path.append('./models/research/slim/deployment')
@@ -219,10 +218,6 @@ tf.app.flags.DEFINE_boolean(
     'use_batch_norm', True,
     'Use batch normalization.')
 
-tf.app.flags.DEFINE_boolean(
-    'train_dual', False,
-    'Train a dual architecture.')
-
 FLAGS = tf.app.flags.FLAGS
 
 def _configure_learning_rate(num_samples_per_epoch, global_step, num_clones):
@@ -383,11 +378,8 @@ def _get_variables_to_train():
 def resseg_model(input, height, width, scale, weight_decay,
                  use_seperable_convolution, num_classes,
                  filter_depth_multiplier=1, num_units=1,
-                 is_training=True, use_batch_norm=True,
-                 dual_model=True):
+                 is_training=True, use_batch_norm=True):
     model = res_seg
-    if dual_model:
-        model = res_seg_dual
     with slim.arg_scope(model.ressep_arg_scope(weight_decay=weight_decay,
                                                use_batch_norm=use_batch_norm)):
         net, end_points = model.ressep_factory(
@@ -451,14 +443,13 @@ def main(_):
                                           is_training=True,
                                           use_batch_norm=FLAGS.use_batch_norm,
                                           num_units=FLAGS.num_units,
-                                          dual_model=FLAGS.train_dual,
                                           filter_depth_multiplier=FLAGS.filter_depth_multiplier)
 
         s = logits.get_shape().as_list()
         with tf.device(deploy_config.inputs_device()):
             lmap_size = 256
             lmap = np.array([0]* lmap_size)
-            for k, v in coco.id2trainid_objects.iteritems():
+            for k, v in coco.id2trainid_objects.items():
                 lmap[k] = v + 1
             lmap = tf.constant(lmap, tf.uint8)
             down_labels = tf.cast(batch_labels, tf.int32)
