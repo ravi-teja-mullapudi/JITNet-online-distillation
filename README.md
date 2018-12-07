@@ -20,4 +20,11 @@ TODO: detailed instructions on pretraining using the script.
 
 ## Timing the JITNet model
 
-TODO: instructions on timing JITNet.
+We include a timing script to determine JITNet inference time with different architecture setups and hardware/software configurations. Run it with `python utils/time_models.py`. The script times the default JITNet architecture setup: this can be changed by changing the 
+arguments at the end of the script.
+
+## Contact
+
+Ravi Teja Mullapudi (rmullapu@cs.cmu.edu)
+
+Steven Chen (stevenzc@stanford.edu) 
