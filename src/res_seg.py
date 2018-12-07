@@ -13,36 +13,38 @@ separable_conv2d = slim.separable_conv2d
 @slim.add_arg_scope
 def basic(inputs, depth, stride, rate=1, use_batch_norm=True,
           outputs_collections=None, scope=None):
-  with tf.variable_scope(scope, 'basic_v2', [inputs]) as sc:
-    depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
-    if use_batch_norm:
-      preact = slim.batch_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
-    else:
-      preact = tf.contrib.layers.layer_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
+    """Builds a standard JITNet encoder or decoder block."""
+    
+    with tf.variable_scope(scope, 'basic_v2', [inputs]) as sc:
+        depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
+        if use_batch_norm:
+            preact = slim.batch_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
+        else:
+            preact = tf.contrib.layers.layer_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
 
-    if depth == depth_in:
-      shortcut = resnet_utils.subsample(inputs, stride, 'shortcut')
-    else:
-      shortcut = slim.conv2d(preact, depth, [1, 1], stride=stride,
-                             normalizer_fn=None, activation_fn=None,
-                             scope='shortcut')
+        if depth == depth_in:
+            shortcut = resnet_utils.subsample(inputs, stride, 'shortcut')
+        else:
+            shortcut = slim.conv2d(preact, depth, [1, 1], stride=stride,
+                                   normalizer_fn=None, activation_fn=None,
+                                   scope='shortcut')
 
-    residual = resnet_utils.conv2d_same(preact, depth, 3, stride,
-                                        rate=rate, scope='conv1')
+        residual = resnet_utils.conv2d_same(preact, depth, 3, stride,
+                                            rate=rate, scope='conv1')
 
-    residual = slim.conv2d(residual, depth, [1, 3], stride=1,
-                           normalizer_fn=None, activation_fn=None,
-                           scope='conv2_1x3')
+        residual = slim.conv2d(residual, depth, [1, 3], stride=1,
+                               normalizer_fn=None, activation_fn=None,
+                               scope='conv2_1x3')
 
-    residual = slim.conv2d(residual, depth, [3, 1], stride=1,
-                           normalizer_fn=None, activation_fn=None,
-                           scope='conv2_3x1')
+        residual = slim.conv2d(residual, depth, [3, 1], stride=1,
+                               normalizer_fn=None, activation_fn=None,
+                               scope='conv2_3x1')
 
-    output = shortcut + residual
+        output = shortcut + residual
 
-    return slim.utils.collect_named_outputs(outputs_collections,
-                                            sc.original_name_scope,
-                                            output)
+        return slim.utils.collect_named_outputs(outputs_collections,
+                                                sc.original_name_scope,
+                                                output)
 
 @slim.add_arg_scope
 def basic_sep(inputs, depth, stride, rate=1, use_batch_norm=True,
@@ -99,6 +101,7 @@ def ressep_backseg(inputs,
                    reuse = None,
                    scope = None,
                    scale = 1.0):
+    """Builds a JITNet model."""
 
     background_decoder_num_units = [ num_units for _ in background_decoder_filter_sizes ]
     frame_encoder_num_units = [ num_units for _ in frame_encoder_filter_sizes ]
@@ -199,6 +202,7 @@ def ressep_backseg(inputs,
                     net = resnet_utils.conv2d_same(net, channels, 3, stride=1, scope='decoder_conv1')
 
                     net = tf.image.resize_images(net, (conv1_in_size), align_corners=True)
+        
         # Convert end_points_collection into a dictionary of end_points.
         end_points = slim.utils.convert_collection_to_dict(end_points_collection)
 

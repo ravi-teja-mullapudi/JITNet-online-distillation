@@ -30,6 +30,7 @@ def model_builder(model_fn,
                     filter_depth_multiplier = filter_depth_multiplier,
                     num_units = num_units)
 
+"""Build and time a JITNet model."""
 def time_model(model_fn,
                model_builder,
                end_point,
@@ -63,10 +64,6 @@ def time_model(model_fn,
                                 options=tf.profiler.ProfileOptionBuilder.float_operation())
             print('Total flops:', prof.total_float_ops)
             print(np.sum([np.prod(v.shape) for v in tf.trainable_variables()]))
-        # allow growth so that large memory allocations are cut down
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        # config.gpu_options.per_process_gpu_memory_fraction=0.5
 
         with tf.Session(config=config) as sess:
             run_metadata = tf.RunMetadata()
@@ -97,13 +94,15 @@ def ressep_model(input, height, width, scale, weight_decay,
 
         return net, end_points
 
-print('JITNet:', time_model(ressep_model,
-                               model_builder,
-                               'predictions',
-                               num_iterations = 10,
-                               height = 720,
-                               width = 1280,
-                               scale = 1.0,
-                               filter_depth_multiplier = 0.5,
-                               num_units = 1,
-                               profile = True))
+
+print('JITNet inference time (sec):', time_model(
+    ressep_model,
+    model_builder,
+    'predictions',
+    num_iterations = 10,
+    height = 720,
+    width = 1280,
+    scale = 1.0,
+    filter_depth_multiplier = 0.5,
+    num_units = 1,
+    profile = True))

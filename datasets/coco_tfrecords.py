@@ -8,10 +8,7 @@ import time
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 import glob
 import random
 

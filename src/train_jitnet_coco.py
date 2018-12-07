@@ -1,4 +1,4 @@
-"""Training script for coco"""
+"""Train JITNet on the COCO dataset."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -29,35 +29,35 @@ tf.app.flags.DEFINE_string(
     'Directory where checkpoints and event logs are written to.')
 
 tf.app.flags.DEFINE_integer('num_clones', 1,
-                            'Number of model clones to deploy.')
+                            'Number of model clones to deploy (the number of GPU devices used).')
 
 tf.app.flags.DEFINE_boolean('clone_on_cpu', False,
-                            'Use CPUs to deploy clones.')
+                            'Use the CPU to deploy clones.')
 
 tf.app.flags.DEFINE_integer('worker_replicas', 1, 'Number of worker replicas.')
 
 tf.app.flags.DEFINE_integer(
     'num_ps_tasks', 0,
-    'The number of parameter servers. If the value is 0, then the parameters '
+    'Number of parameter servers. If the value is 0, then the parameters '
     'are handled locally by the worker.')
 
 tf.app.flags.DEFINE_integer(
     'log_every_n_steps', 10,
-    'The frequency with which logs are print.')
+    'Frequency with which logs are printed.')
 
 tf.app.flags.DEFINE_integer(
     'save_summaries_secs', 120,
-    'The frequency with which summaries are saved, in seconds.')
+    'Frequency with which summaries are saved, in seconds.')
 
 tf.app.flags.DEFINE_integer(
     'save_interval_secs', 300,
-    'The frequency with which the model is saved, in seconds.')
+    'Frequency with which the model is saved, in seconds.')
 
 tf.app.flags.DEFINE_integer('startup_delay_steps', 15,
-                            'Number of training steps between replicas startup.')
+                            'Number of training steps between replica startups.')
 
 tf.app.flags.DEFINE_integer(
-    'task', 0, 'Task id of the replica running the training.')
+    'task', 0, 'Task ID of the replica running the training.')
 
 ######################
 # Optimization Flags #
@@ -231,7 +231,7 @@ def _configure_learning_rate(num_samples_per_epoch, global_step, num_clones):
     A `Tensor` representing the learning rate.
 
   Raises:
-    ValueError: if
+    ValueError: if learning rate decay type is not recognized.
   """
   decay_steps = int(num_samples_per_epoch / (FLAGS.batch_size * num_clones) *
                                              FLAGS.num_epochs_per_decay)
@@ -412,7 +412,6 @@ def main(_):
       global_step = slim.create_global_step()
 
     with tf.device(deploy_config.inputs_device()):
-        #TODO: Check if data loading is a bottleneck
         iterator = coco.get_dataset(FLAGS.train_data_file,
                                     batch_size = FLAGS.batch_size,
                                     num_epochs = 500,
@@ -463,7 +462,7 @@ def main(_):
                                      dtype=tf.int32, shape=label_mask.shape)
             label_weights = tf.cast(label_mask, tf.int32) * fg_weights
 
-        # Specify loss
+        # Specify the loss
         cross_entropy = tf.losses.sparse_softmax_cross_entropy(down_labels,
                                                                logits,
                                                                weights = label_weights,
@@ -472,7 +471,7 @@ def main(_):
 
         return end_points, batch_image, down_labels, logits
 
-    # Gather initial summaries.
+    # Gather initial summaries
     summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))
 
     clones = model_deploy.create_clones(deploy_config, clone_fn, [iterator])
@@ -485,34 +484,34 @@ def main(_):
     # Configure the moving averages #
     #################################
     if FLAGS.moving_average_decay:
-      moving_average_variables = slim.get_model_variables()
-      variable_averages = tf.train.ExponentialMovingAverage(
-          FLAGS.moving_average_decay, global_step)
+        moving_average_variables = slim.get_model_variables()
+        variable_averages = tf.train.ExponentialMovingAverage(
+            FLAGS.moving_average_decay, global_step)
     else:
-      moving_average_variables, variable_averages = None, None
+        moving_average_variables, variable_averages = None, None
 
     #########################################
     # Configure the optimization procedure. #
     #########################################
     with tf.device(deploy_config.optimizer_device()):
-      learning_rate = _configure_learning_rate(FLAGS.num_samples_per_epoch,
+        learning_rate = _configure_learning_rate(FLAGS.num_samples_per_epoch,
                                                global_step, deploy_config.num_clones)
-      optimizer = _configure_optimizer(learning_rate)
-      summaries.add(tf.summary.scalar('learning_rate', learning_rate))
+        optimizer = _configure_optimizer(learning_rate)
+        summaries.add(tf.summary.scalar('learning_rate', learning_rate))
 
     if FLAGS.sync_replicas:
-      # If sync_replicas is enabled, the averaging will be done in the chief
-      # queue runner.
-      optimizer = tf.train.SyncReplicasOptimizer(
-          opt=optimizer,
-          replicas_to_aggregate=FLAGS.replicas_to_aggregate,
-          variable_averages=variable_averages,
-          variables_to_average=moving_average_variables,
-          replica_id=tf.constant(FLAGS.task, tf.int32, shape=()),
-          total_num_replicas=FLAGS.worker_replicas)
+        # If sync_replicas is enabled, the averaging will be done in the chief
+        # queue runner.
+        optimizer = tf.train.SyncReplicasOptimizer(
+            opt=optimizer,
+            replicas_to_aggregate=FLAGS.replicas_to_aggregate,
+            variable_averages=variable_averages,
+            variables_to_average=moving_average_variables,
+            replica_id=tf.constant(FLAGS.task, tf.int32, shape=()),
+            total_num_replicas=FLAGS.worker_replicas)
     elif FLAGS.moving_average_decay:
-      # Update ops executed locally by trainer.
-      update_ops.append(variable_averages.apply(moving_average_variables))
+        # Update ops executed locally by trainer.
+        update_ops.append(variable_averages.apply(moving_average_variables))
 
     end_points, batch_image, down_labels, logits = clones[0].outputs
 
@@ -530,10 +529,11 @@ def main(_):
     # Variables to train.
     variables_to_train = _get_variables_to_train()
 
-    #  and returns a train_tensor and summary_op
+    # Returns a train_tensor and summary_op
     total_loss, clones_gradients = model_deploy.optimize_clones(clones,
-                                                    optimizer,
-                                                    var_list=variables_to_train)
+        optimizer,
+        var_list=variables_to_train)
+    
     # Add total_loss to summary.
     summaries.add(tf.summary.scalar('total_loss', total_loss))
 
@@ -554,14 +554,14 @@ def main(_):
     summary_op = tf.summary.merge(list(summaries), name='summary_op')
 
     if FLAGS.sync_replicas:
-      sync_optimizer = opt
-      startup_delay_steps = 0
+        sync_optimizer = opt
+        startup_delay_steps = 0
     else:
-      sync_optimizer = None
-      startup_delay_steps = FLAGS.task * FLAGS.startup_delay_steps
+        sync_optimizer = None
+        startup_delay_steps = FLAGS.task * FLAGS.startup_delay_steps
 
     ###########################
-    # Kicks off the training. #
+    # Kick off the training.  #
     ###########################
     slim.learning.train(
         train_tensor,
@@ -578,4 +578,4 @@ def main(_):
         sync_optimizer=sync_optimizer)
 
 if __name__ == '__main__':
-  tf.app.run()
+    tf.app.run()
