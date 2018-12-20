@@ -1,3 +1,6 @@
 [submodule "models"]
 	path = models
 	url = git@github.com:tensorflow/models.git
+[submodule "Detectron.pytorch"]
+	path = Detectron.pytorch
+	url = https://github.com/ravi-teja-mullapudi/Detectron.pytorch
