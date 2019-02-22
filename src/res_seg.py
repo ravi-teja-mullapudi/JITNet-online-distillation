@@ -49,6 +49,7 @@ def basic(inputs, depth, stride, rate=1, use_batch_norm=True,
 @slim.add_arg_scope
 def basic_sep(inputs, depth, stride, rate=1, use_batch_norm=True,
               outputs_collections=None, scope=None):
+    """Builds a JITNet encoder or decoder block with separable convolutions."""
     with tf.variable_scope(scope, 'basic_sep_v2', [inputs]) as sc:
         depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
         if use_batch_norm:

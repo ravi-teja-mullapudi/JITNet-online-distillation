@@ -1,9 +1,11 @@
+# Train JITNet on the COCO dataset.
+# Usage: bash scripts/train_jitnet_coco.sh <train_data_file> <checkpoint_dir>
 python src/train_jitnet_coco.py \
-    --train_data_file=/mnt/disks/tensorflow-disk/coco_train.tfrecords \
+    --train_data_file=$1 \
     --batch_size=6 \
     --filter_depth_multiplier=1.0 \
     --num_units=2 \
-    --train_dir=/tmp/jitnet_coco_pretrained/ \
+    --train_dir=$2 \
     --max_number_of_steps=150000 \
     --num_samples_per_epoch=118000 \
     --num_epochs_per_decay=10 \

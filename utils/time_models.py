@@ -59,12 +59,14 @@ def time_model(model_fn,
         predictions = tf.argmax(net, axis=3)
         end_points['predictions'] = predictions
 
+        # if profiling enabled, compute FLOPs and number of parameters
         if profile:
             prof = tf.profiler.profile(tf.get_default_graph(),
                                 options=tf.profiler.ProfileOptionBuilder.float_operation())
             print('Total flops:', prof.total_float_ops)
             print(np.sum([np.prod(v.shape) for v in tf.trainable_variables()]))
 
+        # time JITNet inference time
         with tf.Session(config=config) as sess:
             run_metadata = tf.RunMetadata()
             sess.run(tf.global_variables_initializer())
@@ -74,6 +76,7 @@ def time_model(model_fn,
                 end = time.time()
                 min_time = min(min_time, end - start)
     return min_time
+
 
 def ressep_model(input, height, width, scale, weight_decay,
                  use_seperable_convolution, num_classes,

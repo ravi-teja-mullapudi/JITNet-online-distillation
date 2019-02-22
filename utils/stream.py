@@ -23,9 +23,6 @@ class VideoInputStream:
         if self.start_frame > 0:
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.start_frame)
 
-        # TODO: Create a queue which into which frames are enqued by a
-        # different thread asynchronously and measure performance difference
-
     def __next__(self):
         ret, frame = self.cap.read()
         if not ret:

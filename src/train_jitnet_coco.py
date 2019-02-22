@@ -28,17 +28,21 @@ tf.app.flags.DEFINE_string(
     'train_dir', '/tmp/tfmodel/',
     'Directory where checkpoints and event logs are written to.')
 
-tf.app.flags.DEFINE_integer('num_clones', 1,
-                            'Number of model clones to deploy (the number of GPU devices used).')
+tf.app.flags.DEFINE_integer(
+    'num_clones', 1,
+    'Number of model clones to deploy (number of GPU devices used).')
 
-tf.app.flags.DEFINE_boolean('clone_on_cpu', False,
-                            'Use the CPU to deploy clones.')
+tf.app.flags.DEFINE_boolean(
+    'clone_on_cpu', False,
+    'Use the CPU to deploy clones.')
 
-tf.app.flags.DEFINE_integer('worker_replicas', 1, 'Number of worker replicas.')
+tf.app.flags.DEFINE_integer(
+    'worker_replicas', 1, 
+    'Number of worker replicas.')
 
 tf.app.flags.DEFINE_integer(
     'num_ps_tasks', 0,
-    'Number of parameter servers. If the value is 0, then the parameters '
+    'Number of parameter servers. If 0, then parameters '
     'are handled locally by the worker.')
 
 tf.app.flags.DEFINE_integer(
@@ -53,18 +57,21 @@ tf.app.flags.DEFINE_integer(
     'save_interval_secs', 300,
     'Frequency with which the model is saved, in seconds.')
 
-tf.app.flags.DEFINE_integer('startup_delay_steps', 15,
-                            'Number of training steps between replica startups.')
+tf.app.flags.DEFINE_integer(
+    'startup_delay_steps', 15,
+    'Number of training steps between replica startups.')
 
 tf.app.flags.DEFINE_integer(
-    'task', 0, 'Task ID of the replica running the training.')
+    'task', 0,
+    'Task ID of the replica running the training.')
 
 ######################
 # Optimization Flags #
 ######################
 
 tf.app.flags.DEFINE_float(
-    'weight_decay', 0.00004, 'The weight decay on the model weights.')
+    'weight_decay', 0.00004,
+    'The weight decay on the model weights.')
 
 tf.app.flags.DEFINE_string(
     'optimizer', 'momentum',
@@ -87,48 +94,58 @@ tf.app.flags.DEFINE_float(
     'adam_beta2', 0.999,
     'The exponential decay rate for the 2nd moment estimates.')
 
-tf.app.flags.DEFINE_float('opt_epsilon', 1.0, 'Epsilon term for the optimizer.')
+tf.app.flags.DEFINE_float(
+    'opt_epsilon', 1.0,
+    'Epsilon term for the optimizer.')
 
-tf.app.flags.DEFINE_float('ftrl_learning_rate_power', -0.5,
-                          'The learning rate power.')
+tf.app.flags.DEFINE_float(
+    'ftrl_learning_rate_power', -0.5,
+    'The learning rate power.')
 
 tf.app.flags.DEFINE_float(
     'ftrl_initial_accumulator_value', 0.1,
     'Starting value for the FTRL accumulators.')
 
 tf.app.flags.DEFINE_float(
-    'ftrl_l1', 0.0, 'The FTRL l1 regularization strength.')
+    'ftrl_l1', 0.0,
+    'The FTRL l1 regularization strength.')
 
 tf.app.flags.DEFINE_float(
-    'ftrl_l2', 0.0, 'The FTRL l2 regularization strength.')
+    'ftrl_l2', 0.0,
+    'The FTRL l2 regularization strength.')
 
 tf.app.flags.DEFINE_float(
     'momentum', 0.9,
     'The momentum for the MomentumOptimizer and RMSPropOptimizer.')
 
-tf.app.flags.DEFINE_float('rmsprop_decay', 0.9, 'Decay term for RMSProp.')
+tf.app.flags.DEFINE_float(
+    'rmsprop_decay', 0.9,
+    'Decay term for RMSProp.')
 
 #######################
 # Learning Rate Flags #
 #######################
 
 tf.app.flags.DEFINE_string(
-    'learning_rate_decay_type',
-    'exponential',
+    'learning_rate_decay_type', 'exponential',
     'Specifies how the learning rate is decayed. One of "fixed", "exponential",'
     ' or "polynomial"')
 
-tf.app.flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate.')
+tf.app.flags.DEFINE_float(
+    'learning_rate', 0.001,
+    'Initial learning rate.')
 
 tf.app.flags.DEFINE_float(
     'end_learning_rate', 0.00001,
     'The minimal end learning rate used by a polynomial decay learning rate.')
 
 tf.app.flags.DEFINE_float(
-    'label_smoothing', 0.1, 'The amount of label smoothing.')
+    'label_smoothing', 0.1,
+    'The amount of label smoothing.')
 
 tf.app.flags.DEFINE_float(
-    'learning_rate_decay_factor', 0.1, 'Learning rate decay factor.')
+    'learning_rate_decay_factor', 0.1,
+    'Learning rate decay factor.')
 
 tf.app.flags.DEFINE_float(
     'num_epochs_per_decay', 25.0,
@@ -152,22 +169,28 @@ tf.app.flags.DEFINE_float(
 #######################
 
 tf.app.flags.DEFINE_string(
-    'train_data_file', None, 'The name of the train/test split.')
+    'train_data_file', None,
+    'The name of the train/test split.')
 
 tf.app.flags.DEFINE_integer(
-    'height', 1024, 'The number of samples in each batch.')
+    'height', 1024,
+    'The number of samples in each batch.')
 
 tf.app.flags.DEFINE_integer(
-    'width', 2048, 'The number of samples in each batch.')
+    'width', 2048,
+    'The number of samples in each batch.')
 
 tf.app.flags.DEFINE_integer(
-    'batch_size', 32, 'The number of samples in each batch.')
+    'batch_size', 32,
+    'The number of samples in each batch.')
 
-tf.app.flags.DEFINE_integer('max_number_of_steps', None,
-                            'The maximum number of training steps.')
+tf.app.flags.DEFINE_integer(
+    'max_number_of_steps', None,
+    'The maximum number of training steps.')
 
-tf.app.flags.DEFINE_integer('num_samples_per_epoch', 4000,
-                            'Number of samples per epoch.')
+tf.app.flags.DEFINE_integer(
+    'num_samples_per_epoch', 4000,
+    'Number of samples per epoch.')
 
 #####################
 # Fine-Tuning Flags #
@@ -221,7 +244,7 @@ tf.app.flags.DEFINE_boolean(
 FLAGS = tf.app.flags.FLAGS
 
 def _configure_learning_rate(num_samples_per_epoch, global_step, num_clones):
-  """Configures the learning rate.
+  """Configure the learning rate.
 
   Args:
     num_samples_per_epoch: The number of samples in each epoch of training.
@@ -335,7 +358,6 @@ def _get_init_fn():
         exclusions = [scope.strip()
                      for scope in FLAGS.checkpoint_exclude_scopes.split(',')]
 
-    # TODO(sguada) variables.filter_variables()
     variables_to_restore = []
     for var in slim.get_model_variables():
         excluded = False
