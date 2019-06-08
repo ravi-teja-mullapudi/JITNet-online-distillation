@@ -23,6 +23,12 @@ TODO: detailed instructions on pretraining using the script.
 We include a timing script to determine JITNet inference time with different architecture setups and hardware/software configurations. Run it with `python utils/time_models.py`. The script times the default JITNet architecture setup: this can be changed by changing the 
 arguments at the end of the script.
 
+## The Long Video Streams (LVS) Dataset
+
+The Long Video Streams Dataset can be found at https://olimar.stanford.edu/hdd/lvsdataset/. Each folder contains one stream, consisting of multiple video chunks and corresponding Mask R-CNN predictions. You can download an individual stream, or the whole dataset, using wget. For instance, this will download a stream into lvsdataset/<stream> (use the same command without the stream to download the whole dataset):
+
+`wget -e robots=off -r -nH --cut-dirs 1 --no-check-certificate -np 'https://olimar.stanford.edu/hdd/lvsdataset/<stream>/'`
+
 ## Contact
 
 Ravi Teja Mullapudi (rmullapu@cs.cmu.edu)
